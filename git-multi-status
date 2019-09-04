@@ -83,7 +83,7 @@ do
 		#if [ -d "$f" ]
 		#then
 	    	cd "$f"
-	    	git-multi-status-3x
+	    	git-multi-status
 	    #fi
 	fi
 
