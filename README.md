@@ -24,6 +24,12 @@ Or follow these instructions:
     $ sudo mv git-multi-status /usr/local/bin/
     $ sudo mv gacr /usr/local/bin/
 
+# Todo
+
+[x] initial recursive directory explorer
+[x] prompt to ask to gacr
+[ ] prompt to ask git diff
+
 # License
 
 git-multi-status is released under the MIT license.
