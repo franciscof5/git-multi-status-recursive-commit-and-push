@@ -1,10 +1,10 @@
 git-multi-status-recursive-commit-and-push
 ==========
 
-#git-multi-status
+## git-multi-status
 Show uncommited changes in git directories and ask if you want to commit and push to origin master
 
-#gacr
+## gacr
 The commands simples does
 1. Git add --all
 2. Git commit -m "YOU ENTER DESCRIPTION IN SHELL"
