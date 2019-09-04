@@ -39,6 +39,16 @@ do
 			echo -en "\033[0;31m"
 			echo "Modified files"
 			echo -en "\033[0m"
+
+			read -p "Do you want to commit and push (y/n) [y]: " commit
+			commit=${commit:-y}
+
+			if [ "$commit" == "y" ]; then
+				gacr
+			else
+				echo "Leaving untrack files..."
+			fi
+			echo $commit
 		fi
 
 		# Check for untracked files
