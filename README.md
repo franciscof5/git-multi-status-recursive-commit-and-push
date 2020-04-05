@@ -1,6 +1,8 @@
 git-multi-status-recursive-commit-and-push
 ==========
 
+![git-multi-status-recursive-commit-and-push-shell-2019](git-multi-status.jpg)
+
 # Installation
 
 sudo ./install.sh
