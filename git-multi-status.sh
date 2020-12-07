@@ -33,7 +33,7 @@ do
 		cd $f
 
 		# Check for modified files
-		if [ $(git status | grep modified -c) -ne 0 ]
+		if [ $(git status | egrep "modified|deleted" -c) -ne 0 ]
 		then
 			mod=1
 			echo -en "\033[0;31m"
