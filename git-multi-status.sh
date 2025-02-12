@@ -2,90 +2,63 @@
 
 dir="$1"
 
-# No directory has been provided, use current
-if [ -z "$dir" ]
-then
+# Se nenhum diretório for fornecido, usa o diretório atual
+if [ -z "$dir" ]; then
     dir="`pwd`"
 fi
 
-# Make sure directory ends with "/"
-if [[ $dir != */ ]]
-then
-	dir="$dir/*"
-else
-	dir="$dir*"
-fi
+# Resolve a tilde (~) e normaliza o caminho
+dir=$(realpath "$dir")
 
-# Loop all sub-directories
-for f in $dir
-do
-	# Only interested in directories
-	[ -d "${f}" ] || continue
+# Array para armazenar diretórios com .git
+repos=()
 
-	echo -en "\033[0;35m"
-	echo "${f}"
-	echo -en "\033[0m"
+# Busca todos os diretórios que contêm .git
+while IFS= read -r git_dir; do
+    repo_dir=$(dirname "$git_dir")
+    repos+=("$repo_dir")
+done < <(find "$dir" -type d -name ".git")
 
-	# Check if directory is a git repository
-	if [ -d "$f/.git" ]
-	then
-		mod=0
-		cd $f
+# Itera sobre os diretórios encontrados
+for repo in "${repos[@]}"; do
+    echo -e "\033[0;35m$repo\033[0m"
 
-		# Check for modified files
-		if [ $(git status | egrep "modified|deleted" -c) -ne 0 ]
-		then
-			mod=1
-			echo -en "\033[0;31m"
-			echo "Modified files"
-			echo -en "\033[0m"
+    cd "$repo" || continue
 
-			read -p "Do you want to commit and push (y/n) [y]: " commit
-			commit=${commit:-y}
+    # Verifica modificações ou arquivos não rastreados
+    if git status --porcelain | grep -qE "^\s*[MADRCU]"; then
+        echo -e "\033[0;31mModificações encontradas!\033[0m"
 
-			if [ "$commit" == "y" ]; then
-				gacr
-			else
-				echo "Leaving untrack files..."
-			fi
-			echo $commit
-		fi
+        while true; do
+            echo "O que deseja fazer com $repo?"
+            echo "1. Ver git status"
+            echo "2. Ver git diff"
+            echo "3. Commit changes"
+            echo "4. Push changes"
+            echo "5. Pular para o próximo"
 
-		# Check for untracked files
-		if [ $(git status | grep Untracked -c) -ne 0 ]
-		then
-			mod=1
-			echo -en "\033[0;31m"
-			echo "Untracked files"
-			echo -en "\033[0m"
+            read -p "Escolha uma opção (1-5): " choice
 
-			read -p "Do you want to commit and push (y/n) [y]: " commit
-			commit=${commit:-y}
+            case $choice in
+                1) git status ;;
+                2) git diff ;;
+                3) 
+                    read -p "Digite a mensagem do commit: " commit_msg
+                    git add .
+                    git commit -m "$commit_msg"
+                    echo "Commit realizado!"
+                    ;;
+                4) 
+                    git push
+                    echo "Push realizado!"
+                    ;;
+                5) break ;;
+                *) echo "Opção inválida, escolha entre 1 e 5." ;;
+            esac
+        done
+    else
+        echo "Sem modificações."
+    fi
 
-			if [ "$commit" == "y" ]; then
-				gacr
-			else
-				echo "Leaving untrack files..."
-			fi
-			echo $commit
-		fi
-
-		# Check if everything is peachy keen
-		if [ $mod -eq 0 ]
-		then
-			echo "Nothing to commit"
-		fi
-
-		cd ../
-	else
-		echo "Not a git repository, checking sub-directories"
-
-		#if [ -d "$f" ]
-		#then
-	    	cd "$f"
-	    	git-multi-status
-	    #fi
-	fi
-
-	echo
+    echo
 done
